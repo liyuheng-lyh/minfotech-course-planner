@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#123b3a">
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="course-detail.css">
+  <link rel="stylesheet" href="course-detail.css?v=prerequisite-tree-1">
   <title>课程详情 · MInfoTech 选课规划器</title>
 </head>
 <body>
@@ -30,6 +30,7 @@
           <select id="course-directory" aria-label="按组选课目录"></select>
           <p class="directory-position" id="directory-position"></p>
           <div class="sibling-nav"><a id="previous-course" class="sibling-link">← 上一门</a><a id="next-course" class="sibling-link">下一门 →</a></div>
+          <a id="prerequisite-tree-link" class="text-link preparation-tree-link" href="prerequisite-tree.html">查看这门课的先修关系树 →</a>
         </section>
         <section class="side-card source-card">
           <h2 class="side-title">官方资料</h2>
@@ -80,7 +81,7 @@
   <div class="empty" id="empty" hidden><h1>没有找到这门课程</h1><p>请从课程目录中重新选择。</p><a href="minfotech-course-planner.html">返回选课规划器 →</a></div>
   <noscript><div class="empty">请启用浏览器的 JavaScript，以查看课程资料和使用选课功能。<p><a href="minfotech-course-planner.html">返回选课规划器</a></p></div></noscript>
   <script src="course-data.js"></script>
-  <script src="course-details-data.js"></script>
-  <script src="course-detail.js"></script>
+  <script src="course-details-data.js?v=prerequisite-tree-1"></script>
+  <script src="course-detail.js?v=prerequisite-tree-1"></script>
 </body>
 </html>

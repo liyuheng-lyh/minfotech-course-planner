@@ -53,6 +53,8 @@
   copy('course-code', course.code); copy('course-title', course.title);
   copy('hero-points', `${points} 分`); copy('meta-group', groupName);
   copy('selection-points', `${groupName} · ${points} 分`);
+  const treeLink = el('prerequisite-tree-link');
+  if (treeLink) treeLink.href = `prerequisite-tree.html?code=${encodeURIComponent(course.code)}`;
   const fields = { prescription: 'prescription', overview: 'overview', topics: 'topics', prerequisites: 'prerequisites', workload: 'workload', 'teaching-copy': 'teaching', resources: 'resources', outcomes: 'outcomes', programme: 'programme' };
   Object.entries(fields).forEach(([id, field]) => copy(id, sections[field]));
   if (clean(sections.assessmentNotes)) { el('assessment-notes').hidden = false; copy('assessment-notes', sections.assessmentNotes); }

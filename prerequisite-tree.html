@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b3a">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="prerequisite-tree.css">
+  <title>先修与准备关系 · MInfoTech</title>
+</head>
+<body>
+  <header class="hero"><div class="hero-inner"><a class="back" href="minfotech-course-planner.html">← 返回选课规划器</a><p class="eyebrow">MInfoTech · 课程准备指南</p><h1>先修关系树</h1><p class="hero-description">从目标课程往下看，逐层了解需要哪些课程与知识基础。</p></div></header>
+  <main class="layout">
+    <aside class="sidebar" aria-label="选择目标课程">
+      <section class="side-card filter-card">
+        <h2>选择目标课程</h2>
+        <label for="course-search">搜索课程或基础知识</label><input id="course-search" type="search" placeholder="如：COMPSCI 702、Linux" autocomplete="off">
+        <label for="group-filter">课程组</label><select id="group-filter"><option value="all">全部课程</option><option value="group1">第一组选修课</option><option value="group2">第二组选修课</option><option value="internship">实习</option></select>
+        <label class="checkbox-label" for="selected-only"><input id="selected-only" type="checkbox"><span>只看已选课程</span></label>
+        <p class="micro-note">“已选”指规划器中的勾选，不代表已修读。</p>
+        <label for="course-directory">匹配的目标课程</label><select id="course-directory"></select>
+        <p id="search-status" class="search-status" aria-live="polite"></p>
+        <button id="clear-filters" class="button subtle" type="button">清除筛选</button>
+      </section>
+      <section class="side-card legend-card"><h2>怎么看这棵树</h2><p class="legend-line"><span class="legend-dot recommended"></span>建议先学（非强制）</p><p class="legend-line"><span class="legend-dot required"></span>课程要求</p><p class="legend-line"><span class="legend-dot uncertain"></span>需向学校确认</p><p class="legend-line"><span class="legend-dot knowledge"></span>知识基础</p><p class="micro-note">连线表示该层课程的准备关系。课程要求可能指能力基础，并不一定要求修过指定课程。只有官网已核验的关系才继续向下展开；建议不会自动计入学分或勾选。</p></section>
+      <section class="side-card source-card"><h2>资料来源</h2><p>奥克兰大学课程目录</p><p class="micro-note">核对日期：<span id="updated-at"></span></p><a id="plan-source" target="_blank" rel="noopener noreferrer">查看 180 分项目清单 ↗</a><p class="micro-note">中文整理，非学校官方译文。正式资格与选课许可按学校审核执行。</p></section>
+    </aside>
+    <div class="main-content">
+      <p id="request-message" class="request-message" role="status" hidden></p>
+      <section id="empty-results" class="empty-card" hidden><h2>没有匹配的课程</h2><p id="empty-message">试试课程代码、中文名称或其他基础知识关键词。</p></section>
+      <section id="tree-panel" class="tree-panel" aria-label="课程先修关系图">
+        <div class="target-heading"><div><p class="target-code" id="target-code"></p><h2 id="target-title"></h2><p class="target-meta" id="target-meta"></p></div><span class="selected-badge" id="target-selected" hidden>规划已选</span></div>
+        <div class="formal-status" id="formal-status"></div>
+        <div class="target-links"><a id="detail-link">课程详细介绍 →</a><a id="target-source" target="_blank" rel="noopener noreferrer">官方先修说明 ↗</a></div>
+        <div id="target-notes" class="target-notes" hidden></div>
+        <div class="tree-toolbar"><p>向下查看准备基础</p><div><button id="expand-all" class="button" type="button">全部展开</button><button id="collapse-all" class="button" type="button">全部收起</button></div></div>
+        <div class="tree-root-label">目标课程 <strong id="root-code"></strong></div>
+        <div id="prerequisite-tree" class="tree" aria-label="目标课程及其准备基础"></div>
+        <div id="tree-empty" class="tree-empty" hidden></div>
+        <p class="tree-footer">树中的“同时具备”“任选其一”“累计学分”分别保留官方的组合关系。“建议先学”均为非强制准备，不会因为已在规划器勾选而自动视为已满足。</p>
+      </section>
+    </div>
+  </main>
+  <noscript><div class="empty-card">请启用浏览器 JavaScript，以查看课程先修关系。</div></noscript>
+  <script src="course-data.js"></script>
+  <script src="prerequisite-data.js"></script>
+  <script src="prerequisite-tree.js"></script>
+</body>
+</html>

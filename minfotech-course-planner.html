@@ -113,6 +113,17 @@
 
     .app { padding: 32px 0 64px; }
 
+    .prereq-module {
+      display: flex; align-items: center; justify-content: space-between; gap: 22px;
+      padding: 22px 24px; margin: 18px 0; border: 1px solid #c9dcd4;
+      border-radius: 16px; background: #eaf3ed;
+    }
+    .prereq-module h2 { margin: 3px 0 8px; font-size: 1.22rem; color: var(--brand); }
+    .prereq-module p { margin: 0; max-width: 760px; color: #51665e; font-size: .87rem; line-height: 1.7; }
+    .prereq-module .prereq-kicker { color: var(--brand-2); font-size: .7rem; font-weight: 750; letter-spacing: .1em; }
+    .prereq-open { flex: none; display: inline-block; padding: 12px 18px; border-radius: 9px; color: #fff; background: var(--brand-2); font-size: .87rem; font-weight: 700; text-decoration: none; }
+    .prereq-open:hover { background: var(--brand); }
+
     .dashboard {
       display: grid;
       grid-template-columns: 1.3fr repeat(3, 1fr);
@@ -427,7 +438,7 @@
       font-weight: 650;
     }
 
-    .course-detail-link {
+    .course-detail-link, .course-prerequisite-link {
       flex: none;
       padding: 5px 9px;
       color: var(--brand-2);
@@ -439,6 +450,8 @@
     }
 
     .course-detail-link:hover { color: #fff; background: var(--brand-2); }
+    .course-prerequisite-link { color: #7a5d25; background: #f7efd9; }
+    .course-prerequisite-link:hover { color: #fff; background: #7a5d25; }
 
     .course-link {
       flex: none;
@@ -525,6 +538,8 @@
       .hero-inner, .app { width: min(100% - 24px, 1180px); }
       .hero-inner { padding: 36px 0 34px; }
       .app { padding-top: 20px; }
+      .prereq-module { flex-direction: column; align-items: stretch; gap: 14px; padding: 18px; }
+      .prereq-open { text-align: center; }
       .dashboard { gap: 8px; }
       .stat { min-height: 118px; padding: 16px; border-radius: 15px; }
       .stat-value strong { font-size: 1.65rem; }
@@ -578,6 +593,15 @@
         <div class="progress"><i id="internship-progress"></i></div>
         <div class="status-line"><i class="status-dot"></i><span id="internship-status">尚未完成</span></div>
       </article>
+    </section>
+
+    <section class="prereq-module" id="prerequisite-module" aria-labelledby="prereq-module-title">
+      <div>
+        <p class="prereq-kicker">学习准备 · 关系可视化</p>
+        <h2 id="prereq-module-title">先修关系树</h2>
+        <p>选一门目标课程，展开查看前置课程与知识基础。非强制关系统一标注“建议先学”；课程要求与待确认信息单独区分。查看树状图不会改变你的已选学分。</p>
+      </div>
+      <a class="prereq-open" href="prerequisite-tree.html">查看树状图 →</a>
     </section>
 
     <section class="toolbar" aria-label="课程筛选工具">
@@ -755,6 +779,7 @@
             <span class="course-title">
               <span>${escapeHtml(course.title)}</span>
               <a class="course-detail-link" href="course-detail.html?code=${encodeURIComponent(course.code)}" aria-label="查看 ${escapeHtml(course.code)} 中文课程详情">中文详情</a>
+              <a class="course-prerequisite-link" href="prerequisite-tree.html?code=${encodeURIComponent(course.code)}" aria-label="查看 ${escapeHtml(course.code)} 先修关系树">先修树</a>
               <a class="course-link" href="${courseUrl(course.code)}" target="_blank" rel="noopener noreferrer" title="查看学校课程页面" aria-label="查看 ${escapeHtml(course.code)} 学校课程页面">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path></svg>
               </a>
@@ -862,7 +887,7 @@
     });
 
     sectionsEl.addEventListener('click', event => {
-      if (event.target.closest('.course-link, .course-detail-link')) event.stopPropagation();
+      if (event.target.closest('.course-link, .course-detail-link, .course-prerequisite-link')) event.stopPropagation();
     });
 
     searchEl.addEventListener('input', renderCourses);
