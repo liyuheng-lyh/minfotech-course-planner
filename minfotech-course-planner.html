@@ -356,6 +356,9 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .section-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+    .browse-details { color: var(--brand-2); font-size: .82rem; font-weight: 700; padding: 8px 4px; text-underline-offset: 4px; }
+
     .course-grid {
       padding: 14px;
       display: grid;
@@ -426,11 +429,11 @@
 
     .course-detail-link {
       flex: none;
-      padding: 2px 7px;
+      padding: 5px 9px;
       color: var(--brand-2);
       background: #e6f1ee;
       border-radius: 6px;
-      font-size: .68rem;
+      font-size: .75rem;
       font-weight: 760;
       text-decoration: none;
     }
@@ -528,7 +531,8 @@
       .toolbar { top: 6px; flex-wrap: wrap; }
       .search-wrap { flex-basis: 100%; }
       .filter-toggle, .reset-btn { flex: 1; justify-content: center; }
-      .section-head { padding: 18px; align-items: flex-start; }
+      .section-head { padding: 18px; align-items: flex-start; flex-wrap: wrap; }
+      .section-actions { justify-content: flex-start; }
       .section-summary { padding: 6px 9px; }
       .course-grid { padding: 9px; }
       .course { padding: 12px; }
@@ -544,7 +548,7 @@
     <div class="hero-inner">
       <p class="eyebrow">University of Auckland · MInfoTech</p>
       <h1>180 分选课规划器</h1>
-      <p class="hero-copy">勾选想修的课程，系统会自动核算第一组、第二组、实习与总学分。你的选择只保存在当前浏览器中。</p>
+      <p class="hero-copy">勾选想修的课程，实时核算各组与总学分。点击“中文详情”查看课程内容、先修要求、开课与考核信息，也可按组逐门浏览。你的选择只保存在当前浏览器中。</p>
     </div>
   </header>
 
@@ -592,7 +596,7 @@
     <p class="results-meta" id="results-meta" aria-live="polite"></p>
     <div id="sections"></div>
 
-    <p class="footnote">提示：本工具依据你提供的课程清单核算学分，仅用于规划；实际开课、先修条件及选课审批请以学校当期规定为准。</p>
+    <p class="footnote">依据奥克兰大学 <a href="https://study.auckland.ac.nz/ords/r/uoa/catalogue/plan?p7_code=INFT-T3MInfoTech" target="_blank" rel="noopener noreferrer">MInfoTech 180 分官方课程表</a>整理。本工具仅用于选课规划，不会向学校提交选课；中文详情为官网信息整理，实际开课、先修条件及审批请以学校当期规定为准。</p>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -609,7 +613,7 @@
       { group: 'group1', code: 'COMPSCI 710', title: '导向学习' },
       { group: 'group1', code: 'COMPSCI 711', title: '并行与分布式计算' },
       { group: 'group1', code: 'COMPSCI 715', title: '高级计算机图形学' },
-      { group: 'group1', code: 'COMPSCI 720', title: '高级算法设计与分析', detail: 'course-compsci-720.html' },
+      { group: 'group1', code: 'COMPSCI 720', title: '高级算法设计与分析' },
       { group: 'group1', code: 'COMPSCI 721', title: '随机算法与概率方法' },
       { group: 'group1', code: 'COMPSCI 725', title: '可用安全与隐私工程' },
       { group: 'group1', code: 'COMPSCI 726', title: '网络防御与对策' },
@@ -724,7 +728,11 @@
     }
 
     function saveSelection() {
-      localStorage.setItem(storageKey, JSON.stringify([...selected]));
+      try {
+        localStorage.setItem(storageKey, JSON.stringify([...selected]));
+      } catch {
+        showToast('浏览器无法保存，当前选择仅在本页有效');
+      }
     }
 
     function courseUrl(code) {
@@ -746,7 +754,7 @@
             </span>
             <span class="course-title">
               <span>${escapeHtml(course.title)}</span>
-              <a class="course-detail-link" href="${course.detail || `course-detail.html?code=${encodeURIComponent(course.code)}`}" aria-label="查看 ${escapeHtml(course.code)} 课程简介">课程简介</a>
+              <a class="course-detail-link" href="course-detail.html?code=${encodeURIComponent(course.code)}" aria-label="查看 ${escapeHtml(course.code)} 中文课程详情">中文详情</a>
               <a class="course-link" href="${courseUrl(course.code)}" target="_blank" rel="noopener noreferrer" title="查看学校课程页面" aria-label="查看 ${escapeHtml(course.code)} 学校课程页面">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path></svg>
               </a>
@@ -778,7 +786,10 @@
                 <p class="section-kicker">${info.kicker}</p>
                 <h2>${info.title}</h2>
               </div>
-              <span class="section-summary">已选 ${selectedInGroup.length} 门 · ${groupPoints} 分</span>
+              <div class="section-actions">
+                <a class="browse-details" href="course-detail.html?code=${encodeURIComponent(groupCourses[0].code)}">${group === 'internship' ? '查看实习详情' : '逐门浏览详情'} →</a>
+                <span class="section-summary">已选 ${selectedInGroup.length} 门 · ${groupPoints} 分</span>
+              </div>
             </header>
             <div class="course-grid">${groupCourses.map(courseCard).join('')}</div>
           </section>`;
@@ -880,6 +891,12 @@
       showToast('已清空全部选择');
     });
 
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) { selected = loadSelection(); render(); }
+    });
+    window.addEventListener('storage', event => {
+      if (event.key === storageKey || event.key === null) { selected = loadSelection(); render(); }
+    });
     render();
   </script>
 </body>
