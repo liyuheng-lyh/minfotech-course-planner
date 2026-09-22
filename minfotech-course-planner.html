@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b3a">
+  <title>MInfoTech 180 分选课规划器</title>
+  <style>
+    :root {
+      --ink: #172321;
+      --muted: #66716f;
+      --paper: #f5f3ec;
+      --card: #fffef9;
+      --line: #dcded7;
+      --brand: #123b3a;
+      --brand-2: #1f6962;
+      --accent: #e5a73d;
+      --success: #147a58;
+      --success-bg: #e7f5ee;
+      --pending: #99610b;
+      --pending-bg: #fff1d5;
+      --shadow: 0 18px 50px rgba(23, 35, 33, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 5%, rgba(229, 167, 61, .16), transparent 22rem),
+        radial-gradient(circle at 5% 18%, rgba(31, 105, 98, .10), transparent 28rem),
+        var(--paper);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input { font: inherit; }
+
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(31, 105, 98, .28);
+      outline-offset: 2px;
+    }
+
+    .hero {
+      color: #fff;
+      background: var(--brand);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 23rem;
+      height: 23rem;
+      right: -7rem;
+      top: -11rem;
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4rem rgba(255,255,255,.025), 0 0 0 8rem rgba(255,255,255,.02);
+    }
+
+    .hero-inner, .app {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      padding: 48px 0 42px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 13px;
+      color: #bfe1da;
+      font-size: .78rem;
+      font-weight: 760;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 24px;
+      height: 2px;
+      border-radius: 99px;
+      background: var(--accent);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(2rem, 4vw, 3.7rem);
+      line-height: 1.06;
+      letter-spacing: -.045em;
+      font-weight: 820;
+    }
+
+    .hero-copy {
+      margin: 18px 0 0;
+      max-width: 720px;
+      color: #d7e4e1;
+      font-size: 1rem;
+    }
+
+    .app { padding: 32px 0 64px; }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.3fr repeat(3, 1fr);
+      gap: 12px;
+      margin-top: -2px;
+    }
+
+    .stat {
+      min-height: 132px;
+      padding: 20px;
+      background: rgba(255, 254, 249, .94);
+      border: 1px solid rgba(220, 222, 215, .9);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      transition: border-color .2s, transform .2s;
+    }
+
+    .stat.total {
+      color: white;
+      background: var(--brand-2);
+      border-color: transparent;
+    }
+
+    .stat.complete:not(.total) { border-color: #8bc9b2; }
+
+    .stat-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 680;
+    }
+
+    .total .stat-label { color: #d1e9e4; }
+
+    .stat-value {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin: 8px 0 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-value strong {
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: -.03em;
+    }
+
+    .stat-value span { color: var(--muted); font-size: .82rem; }
+    .total .stat-value span { color: #d1e9e4; }
+
+    .progress {
+      height: 6px;
+      background: #e7e8e2;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .total .progress { background: rgba(255,255,255,.16); }
+
+    .progress > i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      border-radius: inherit;
+      transition: width .28s ease;
+    }
+
+    .stat.complete .progress > i { background: #44c296; }
+
+    .status-line {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .77rem;
+      font-weight: 720;
+      color: var(--pending);
+    }
+
+    .stat.complete .status-line { color: var(--success); }
+    .stat.total .status-line { color: #fff; }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: currentColor;
+      border-radius: 50%;
+    }
+
+    .toolbar {
+      margin: 24px 0 18px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      background: rgba(255, 254, 249, .9);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 10px 32px rgba(23, 35, 33, .09);
+      backdrop-filter: blur(14px);
+    }
+
+    .search-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: #798380;
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      height: 44px;
+      padding: 0 40px 0 42px;
+      color: var(--ink);
+      background: #f3f4ef;
+      border: 1px solid transparent;
+      border-radius: 11px;
+    }
+
+    #search:focus { background: #fff; border-color: #8bb9b3; outline: none; }
+
+    .clear-search {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 29px;
+      height: 29px;
+      border: 0;
+      border-radius: 50%;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .clear-search:hover { background: #e4e7e0; }
+    .clear-search[hidden] { display: none; }
+
+    .filter-toggle {
+      height: 44px;
+      padding: 0 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      font-weight: 680;
+      font-size: .86rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .filter-toggle.active {
+      color: #fff;
+      background: var(--brand-2);
+      border-color: var(--brand-2);
+    }
+
+    .reset-btn {
+      height: 44px;
+      padding: 0 15px;
+      color: #9b352d;
+      background: #fff5f2;
+      border: 1px solid #efd2cb;
+      border-radius: 11px;
+      font-weight: 690;
+      font-size: .86rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .reset-btn:hover { background: #fde9e4; }
+
+    .results-meta {
+      margin: 0 2px 22px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .course-section {
+      margin-top: 20px;
+      overflow: hidden;
+      background: rgba(255, 254, 249, .7);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+
+    .section-head {
+      padding: 22px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.52);
+    }
+
+    .section-title-wrap { min-width: 0; }
+
+    .section-kicker {
+      margin: 0 0 3px;
+      color: var(--brand-2);
+      font-size: .74rem;
+      font-weight: 780;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 1.24rem;
+      letter-spacing: -.02em;
+    }
+
+    .section-summary {
+      flex: none;
+      padding: 8px 12px;
+      color: var(--brand);
+      background: #e8f0ed;
+      border-radius: 99px;
+      font-size: .8rem;
+      font-weight: 760;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .course-grid {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .course {
+      min-height: 76px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      position: relative;
+      background: var(--card);
+      border: 1px solid #e2e3dd;
+      border-radius: 13px;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .course:hover {
+      transform: translateY(-1px);
+      border-color: #a8c2bd;
+    }
+
+    .course.selected {
+      background: #f0f8f5;
+      border-color: #72b8a0;
+      box-shadow: inset 3px 0 0 var(--brand-2);
+    }
+
+    .course-main { flex: 1; min-width: 0; }
+
+    .course-topline {
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .course-code {
+      color: var(--brand-2);
+      font-size: .77rem;
+      font-weight: 810;
+      letter-spacing: .035em;
+    }
+
+    .course-points {
+      padding: 2px 6px;
+      color: #765013;
+      background: #f8e9c7;
+      border-radius: 5px;
+      font-size: .67rem;
+      font-weight: 760;
+    }
+
+    .course-title {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--ink);
+      font-size: .92rem;
+      font-weight: 650;
+    }
+
+    .course-detail-link {
+      flex: none;
+      padding: 2px 7px;
+      color: var(--brand-2);
+      background: #e6f1ee;
+      border-radius: 6px;
+      font-size: .68rem;
+      font-weight: 760;
+      text-decoration: none;
+    }
+
+    .course-detail-link:hover { color: #fff; background: var(--brand-2); }
+
+    .course-link {
+      flex: none;
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      color: #788380;
+      border-radius: 6px;
+    }
+
+    .course-link:hover { color: var(--brand-2); background: #e3efec; }
+
+    .check {
+      flex: none;
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      color: transparent;
+      background: #fff;
+      border: 2px solid #bfc6c2;
+      border-radius: 8px;
+      transition: all .16s ease;
+    }
+
+    .course.selected .check {
+      color: #fff;
+      background: var(--brand-2);
+      border-color: var(--brand-2);
+      transform: scale(1.04);
+    }
+
+    .check svg { width: 17px; height: 17px; }
+
+    .native-check {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .empty-state {
+      padding: 44px 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-state strong { display: block; margin-bottom: 5px; color: var(--ink); }
+
+    .footnote {
+      margin: 22px auto 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: .8rem;
+      text-align: center;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 50;
+      padding: 10px 15px;
+      color: #fff;
+      background: #1f2927;
+      border-radius: 10px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.2);
+      opacity: 0;
+      transform: translate(-50%, 14px);
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+      font-size: .86rem;
+    }
+
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 860px) {
+      .dashboard { grid-template-columns: repeat(2, 1fr); }
+      .dashboard .total { grid-column: span 2; }
+      .course-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 580px) {
+      .hero-inner, .app { width: min(100% - 24px, 1180px); }
+      .hero-inner { padding: 36px 0 34px; }
+      .app { padding-top: 20px; }
+      .dashboard { gap: 8px; }
+      .stat { min-height: 118px; padding: 16px; border-radius: 15px; }
+      .stat-value strong { font-size: 1.65rem; }
+      .toolbar { top: 6px; flex-wrap: wrap; }
+      .search-wrap { flex-basis: 100%; }
+      .filter-toggle, .reset-btn { flex: 1; justify-content: center; }
+      .section-head { padding: 18px; align-items: flex-start; }
+      .section-summary { padding: 6px 9px; }
+      .course-grid { padding: 9px; }
+      .course { padding: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">University of Auckland · MInfoTech</p>
+      <h1>180 分选课规划器</h1>
+      <p class="hero-copy">勾选想修的课程，系统会自动核算第一组、第二组、实习与总学分。你的选择只保存在当前浏览器中。</p>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="dashboard" aria-label="学分完成情况">
+      <article class="stat total" id="stat-total">
+        <div class="stat-label"><span>总学分</span><span id="total-count">0 门已选</span></div>
+        <div class="stat-value"><strong id="total-points">0</strong><span>/ 180 分</span></div>
+        <div class="progress"><i id="total-progress"></i></div>
+        <div class="status-line"><i class="status-dot"></i><span id="total-status">还差 180 分</span></div>
+      </article>
+      <article class="stat" id="stat-group1">
+        <div class="stat-label"><span>第一组选修课</span><span>至少 45 分</span></div>
+        <div class="stat-value"><strong id="group1-points">0</strong><span>/ 45 分</span></div>
+        <div class="progress"><i id="group1-progress"></i></div>
+        <div class="status-line"><i class="status-dot"></i><span id="group1-status">还差 45 分</span></div>
+      </article>
+      <article class="stat" id="stat-group2">
+        <div class="stat-label"><span>第二组选修课</span><span>至少 45 分</span></div>
+        <div class="stat-value"><strong id="group2-points">0</strong><span>/ 45 分</span></div>
+        <div class="progress"><i id="group2-progress"></i></div>
+        <div class="status-line"><i class="status-dot"></i><span id="group2-status">还差 45 分</span></div>
+      </article>
+      <article class="stat" id="stat-internship">
+        <div class="stat-label"><span>实习</span><span>必须完成</span></div>
+        <div class="stat-value"><strong id="internship-points">0</strong><span>/ 60 分</span></div>
+        <div class="progress"><i id="internship-progress"></i></div>
+        <div class="status-line"><i class="status-dot"></i><span id="internship-status">尚未完成</span></div>
+      </article>
+    </section>
+
+    <section class="toolbar" aria-label="课程筛选工具">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input id="search" type="search" autocomplete="off" placeholder="搜索课程代码或中文名称…" aria-label="搜索课程">
+        <button class="clear-search" id="clear-search" type="button" aria-label="清除搜索" hidden>×</button>
+      </div>
+      <button class="filter-toggle" id="selected-only" type="button" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>
+        只看已选
+      </button>
+      <button class="reset-btn" id="reset" type="button">一键清空</button>
+    </section>
+
+    <p class="results-meta" id="results-meta" aria-live="polite"></p>
+    <div id="sections"></div>
+
+    <p class="footnote">提示：本工具依据你提供的课程清单核算学分，仅用于规划；实际开课、先修条件及选课审批请以学校当期规定为准。</p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const courses = [
+      { group: 'group1', code: 'COMPSCI 701', title: '创建可维护的软件' },
+      { group: 'group1', code: 'COMPSCI 702', title: '智能设备安全' },
+      { group: 'group1', code: 'COMPSCI 703', title: '人工智能泛化' },
+      { group: 'group1', code: 'COMPSCI 704', title: '人机交互基础' },
+      { group: 'group1', code: 'COMPSCI 705', title: '人机交互高级主题' },
+      { group: 'group1', code: 'COMPSCI 706', title: '专题' },
+      { group: 'group1', code: 'COMPSCI 707', title: '专题' },
+      { group: 'group1', code: 'COMPSCI 710', title: '导向学习' },
+      { group: 'group1', code: 'COMPSCI 711', title: '并行与分布式计算' },
+      { group: 'group1', code: 'COMPSCI 715', title: '高级计算机图形学' },
+      { group: 'group1', code: 'COMPSCI 720', title: '高级算法设计与分析', detail: 'course-compsci-720.html' },
+      { group: 'group1', code: 'COMPSCI 721', title: '随机算法与概率方法' },
+      { group: 'group1', code: 'COMPSCI 725', title: '可用安全与隐私工程' },
+      { group: 'group1', code: 'COMPSCI 726', title: '网络防御与对策' },
+      { group: 'group1', code: 'COMPSCI 727', title: '密码管理' },
+      { group: 'group1', code: 'COMPSCI 732', title: '软件工具与技术' },
+      { group: 'group1', code: 'COMPSCI 734', title: '网页、移动与企业计算' },
+      { group: 'group1', code: 'COMPSCI 742', title: '高级互联网：全球数据通信' },
+      { group: 'group1', code: 'COMPSCI 747', title: '计算教育' },
+      { group: 'group1', code: 'COMPSCI 750', title: '计算复杂性' },
+      { group: 'group1', code: 'COMPSCI 751', title: '数据库系统高级主题' },
+      { group: 'group1', code: 'COMPSCI 752', title: '大数据管理' },
+      { group: 'group1', code: 'COMPSCI 753', title: '海量数据算法' },
+      { group: 'group1', code: 'COMPSCI 760', title: '机器学习高级主题' },
+      { group: 'group1', code: 'COMPSCI 761', title: '人工智能高级主题' },
+      { group: 'group1', code: 'COMPSCI 762', title: '机器学习基础' },
+      { group: 'group1', code: 'COMPSCI 765', title: '建模思维' },
+      { group: 'group1', code: 'COMPSCI 767', title: '智能软件代理' },
+      { group: 'group1', code: 'COMPSCI 771', title: '计算机图形学与图像处理高级主题' },
+      { group: 'group1', code: 'COMPSCI 773', title: '智能视觉系统' },
+      { group: 'group1', code: 'COMPSYS 701', title: '高级数字系统设计' },
+      { group: 'group1', code: 'COMPSYS 704', title: '高级嵌入式系统' },
+      { group: 'group1', code: 'COMPSYS 705', title: '安全关键软件的形式方法' },
+      { group: 'group1', code: 'COMPSYS 708', title: '专题' },
+      { group: 'group1', code: 'COMPSYS 710', title: '计算机系统工程研究 1' },
+      { group: 'group1', code: 'COMPSYS 711', title: '计算机系统工程研究 2' },
+      { group: 'group1', code: 'COMPSYS 713', title: '计算机系统工程研究 4' },
+      { group: 'group1', code: 'COMPSYS 714', title: '计算机系统工程研究 5' },
+      { group: 'group1', code: 'COMPSYS 715', title: '计算机系统工程研究 6' },
+      { group: 'group1', code: 'COMPSYS 721', title: '机器学习与深度学习' },
+      { group: 'group1', code: 'COMPSYS 722', title: '专题' },
+      { group: 'group1', code: 'COMPSYS 723', title: '嵌入式系统设计' },
+      { group: 'group1', code: 'COMPSYS 725', title: '分布式网络物理系统设计' },
+      { group: 'group1', code: 'COMPSYS 726', title: '机器人与智能系统' },
+      { group: 'group1', code: 'COMPSYS 727', title: '基于模型的嵌入式系统设计' },
+      { group: 'group1', code: 'COMPSYS 728', title: '专题' },
+      { group: 'group1', code: 'COMPSYS 729', title: '专题' },
+      { group: 'group1', code: 'ELECTENG 722', title: '现代控制系统' },
+      { group: 'group1', code: 'ELECTENG 726', title: '数字通信' },
+      { group: 'group1', code: 'ELECTENG 732', title: '通信系统' },
+      { group: 'group1', code: 'ELECTENG 733', title: '数字信号处理' },
+      { group: 'group1', code: 'INFOSYS 722', title: '数据挖掘与大数据' },
+      { group: 'group1', code: 'INFOSYS 727', title: '高级信息安全' },
+      { group: 'group1', code: 'INFOSYS 735', title: '云计算架构' },
+      { group: 'group1', code: 'STATS 705', title: '官方统计主题' },
+      { group: 'group1', code: 'STATS 707', title: '统计计算导论' },
+      { group: 'group1', code: 'STATS 762', title: '数据科学回归' },
+
+      { group: 'group2', code: 'DIGIHLTH 701', title: '数字健康原理' },
+      { group: 'group2', code: 'DIGIHLTH 702', title: '健康知识管理' },
+      { group: 'group2', code: 'DIGIHLTH 703', title: '新西兰健康数据景观' },
+      { group: 'group2', code: 'DIGIHLTH 704', title: '医疗中的人工智能' },
+      { group: 'group2', code: 'DIGIHLTH 705', title: '数字健康设计与评估' },
+      { group: 'group2', code: 'DIGIHLTH 706', title: '健康数据分析' },
+      { group: 'group2', code: 'GLMI 701', title: '全球竞争' },
+      { group: 'group2', code: 'GLMI 703', title: '全球数字战略' },
+      { group: 'group2', code: 'GLMI 704', title: '全球可持续发展' },
+      { group: 'group2', code: 'GLMI 705', title: '人、表现与幸福感' },
+      { group: 'group2', code: 'GLMI 706', title: '不确定时代的工作' },
+      { group: 'group2', code: 'GLMI 707', title: '组织变革' },
+      { group: 'group2', code: 'GLMI 708', title: '自我领导与职业成长' },
+      { group: 'group2', code: 'GLMI 709', title: '新兴创业与全球互联互通' },
+      { group: 'group2', code: 'GLMI 710', title: '利用创新生态系统' },
+      { group: 'group2', code: 'GLMI 711', title: '战略创业实践' },
+      { group: 'group2', code: 'GLMI 712', title: '当代创新与商业设计方法' },
+      { group: 'group2', code: 'INFOSYS 700', title: '数字创新' },
+      { group: 'group2', code: 'INFOSYS 702', title: '专题' },
+      { group: 'group2', code: 'INFOSYS 703', title: '人工智能管理' },
+      { group: 'group2', code: 'INFOSYS 704', title: 'IT 咨询' },
+      { group: 'group2', code: 'INFOSYS 705', title: '导向学习' },
+      { group: 'group2', code: 'INFOSYS 706', title: '数字可持续发展' },
+      { group: 'group2', code: 'INFOSYS 707', title: '专题' },
+      { group: 'group2', code: 'INFOSYS 708', title: '专题' },
+      { group: 'group2', code: 'INFOSYS 709', title: '信息系统实践中的当代问题' },
+      { group: 'group2', code: 'INFOSYS 720', title: '信息系统研究' },
+      { group: 'group2', code: 'INFOSYS 750', title: '信息系统中的定量方法' },
+      { group: 'group2', code: 'INFOSYS 751', title: '信息系统中的定性方法' },
+      { group: 'group2', code: 'INFOSYS 757', title: '项目管理与外包' },
+      { group: 'group2', code: 'OPSMGT 700', title: '医疗分析与运营' },
+      { group: 'group2', code: 'OPSMGT 702', title: 'OSCM 实践中的当代问题' },
+      { group: 'group2', code: 'OPSMGT 741', title: '系统动力学与复杂建模' },
+      { group: 'group2', code: 'OPSMGT 780', title: '可持续转型' },
+      { group: 'group2', code: 'SCIENT 701', title: '科学家会计与财务' },
+      { group: 'group2', code: 'STATS 779', title: '统计学专业技能' },
+
+      { group: 'internship', code: 'COMPSCI 778', title: '实习', points: 60 }
+    ].map(course => ({ ...course, points: course.points || 15, id: course.code.replace(' ', '-') }));
+
+    const groupInfo = {
+      group1: { title: '第一组选修课', kicker: '技术与计算方向', requirement: '至少完成 45 分' },
+      group2: { title: '第二组选修课', kicker: '应用、管理与创新方向', requirement: '至少完成 45 分' },
+      internship: { title: '实习', kicker: '实践环节', requirement: '完成全部 60 分' }
+    };
+
+    const storageKey = 'uoa-minfotech-180-selection-v1';
+    const validIds = new Set(courses.map(c => c.id));
+    let selected = loadSelection();
+    let selectedOnly = false;
+    let toastTimer;
+
+    const sectionsEl = document.getElementById('sections');
+    const searchEl = document.getElementById('search');
+    const selectedOnlyBtn = document.getElementById('selected-only');
+    const clearSearchBtn = document.getElementById('clear-search');
+
+    function loadSelection() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        return new Set(Array.isArray(saved) ? saved.filter(id => validIds.has(id)) : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveSelection() {
+      localStorage.setItem(storageKey, JSON.stringify([...selected]));
+    }
+
+    function courseUrl(code) {
+      return `https://study.auckland.ac.nz/ords/r/uoa/catalogue/course?p6_code=${encodeURIComponent(code)}`;
+    }
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function courseCard(course) {
+      const checked = selected.has(course.id);
+      return `
+        <label class="course${checked ? ' selected' : ''}" data-id="${course.id}">
+          <span class="course-main">
+            <span class="course-topline">
+              <span class="course-code">${escapeHtml(course.code)}</span>
+              <span class="course-points">${course.points} 分</span>
+            </span>
+            <span class="course-title">
+              <span>${escapeHtml(course.title)}</span>
+              <a class="course-detail-link" href="${course.detail || `course-detail.html?code=${encodeURIComponent(course.code)}`}" aria-label="查看 ${escapeHtml(course.code)} 课程简介">课程简介</a>
+              <a class="course-link" href="${courseUrl(course.code)}" target="_blank" rel="noopener noreferrer" title="查看学校课程页面" aria-label="查看 ${escapeHtml(course.code)} 学校课程页面">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path></svg>
+              </a>
+            </span>
+          </span>
+          <input class="native-check" type="checkbox" value="${course.id}" ${checked ? 'checked' : ''} aria-label="选择 ${escapeHtml(course.code)} ${escapeHtml(course.title)}">
+          <span class="check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m5 12 4 4L19 6"></path></svg></span>
+        </label>`;
+    }
+
+    function renderCourses() {
+      const query = searchEl.value.trim().toLocaleLowerCase('zh-CN');
+      const visible = courses.filter(course => {
+        const matchesSearch = !query || `${course.code} ${course.title}`.toLocaleLowerCase('zh-CN').includes(query);
+        return matchesSearch && (!selectedOnly || selected.has(course.id));
+      });
+
+      sectionsEl.innerHTML = Object.keys(groupInfo).map(group => {
+        const info = groupInfo[group];
+        const groupCourses = visible.filter(course => course.group === group);
+        const allInGroup = courses.filter(course => course.group === group).length;
+        const selectedInGroup = courses.filter(course => course.group === group && selected.has(course.id));
+        const groupPoints = selectedInGroup.reduce((sum, course) => sum + course.points, 0);
+        if (!groupCourses.length) return '';
+        return `
+          <section class="course-section" id="section-${group}">
+            <header class="section-head">
+              <div class="section-title-wrap">
+                <p class="section-kicker">${info.kicker}</p>
+                <h2>${info.title}</h2>
+              </div>
+              <span class="section-summary">已选 ${selectedInGroup.length} 门 · ${groupPoints} 分</span>
+            </header>
+            <div class="course-grid">${groupCourses.map(courseCard).join('')}</div>
+          </section>`;
+      }).join('');
+
+      if (!visible.length) {
+        sectionsEl.innerHTML = `<div class="empty-state"><strong>没有找到符合条件的课程</strong><span>试试其他关键词，或关闭“只看已选”。</span></div>`;
+      }
+
+      const filterLabel = selectedOnly ? '已选课程中' : '全部课程中';
+      document.getElementById('results-meta').textContent = `${filterLabel}显示 ${visible.length} 门 · 课程库共 ${courses.length} 门`;
+      clearSearchBtn.hidden = !searchEl.value;
+    }
+
+    function groupPoints(group) {
+      return courses
+        .filter(course => course.group === group && selected.has(course.id))
+        .reduce((sum, course) => sum + course.points, 0);
+    }
+
+    function updateStat(name, points, required, completeText) {
+      const card = document.getElementById(`stat-${name}`);
+      const complete = points >= required;
+      card.classList.toggle('complete', complete);
+      document.getElementById(`${name}-points`).textContent = points;
+      document.getElementById(`${name}-progress`).style.width = `${Math.min(100, points / required * 100)}%`;
+      document.getElementById(`${name}-status`).textContent = complete ? completeText : `还差 ${required - points} 分`;
+    }
+
+    function updateDashboard() {
+      const g1 = groupPoints('group1');
+      const g2 = groupPoints('group2');
+      const internship = groupPoints('internship');
+      const total = g1 + g2 + internship;
+      const totalComplete = total >= 180;
+
+      updateStat('group1', g1, 45, '已满足第一组要求');
+      updateStat('group2', g2, 45, '已满足第二组要求');
+      updateStat('internship', internship, 60, '已完成实习要求');
+
+      const totalCard = document.getElementById('stat-total');
+      totalCard.classList.toggle('complete', totalComplete);
+      document.getElementById('total-points').textContent = total;
+      document.getElementById('total-count').textContent = `${selected.size} 门已选`;
+      document.getElementById('total-progress').style.width = `${Math.min(100, total / 180 * 100)}%`;
+      document.getElementById('total-status').textContent = totalComplete
+        ? (total === 180 ? '已达到 180 分毕业总分' : `已达到要求，超出 ${total - 180} 分`)
+        : `还差 ${180 - total} 分`;
+    }
+
+    function render() {
+      renderCourses();
+      updateDashboard();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    sectionsEl.addEventListener('change', event => {
+      if (!event.target.matches('.native-check')) return;
+      const id = event.target.value;
+      event.target.checked ? selected.add(id) : selected.delete(id);
+      saveSelection();
+      render();
+    });
+
+    sectionsEl.addEventListener('click', event => {
+      if (event.target.closest('.course-link, .course-detail-link')) event.stopPropagation();
+    });
+
+    searchEl.addEventListener('input', renderCourses);
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchEl.value = '';
+      searchEl.focus();
+      renderCourses();
+    });
+
+    selectedOnlyBtn.addEventListener('click', () => {
+      selectedOnly = !selectedOnly;
+      selectedOnlyBtn.classList.toggle('active', selectedOnly);
+      selectedOnlyBtn.setAttribute('aria-pressed', String(selectedOnly));
+      renderCourses();
+    });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      if (!selected.size) {
+        showToast('当前没有已选课程');
+        return;
+      }
+      selected.clear();
+      saveSelection();
+      render();
+      showToast('已清空全部选择');
+    });
+
+    render();
+  </script>
+</body>
+</html>
