@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b3a">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="prerequisite-overview.css">
+  <title>先修关系总览大树 · MInfoTech 180 分</title>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner"><a class="back" href="minfotech-course-planner.html">← 返回选课规划器</a><p class="eyebrow">MInfoTech · 全课程准备地图</p><h1>先修关系总览大树</h1><p class="hero-description">把整个 180 分项目放进一棵树。从课程组出发，展开课程，追溯准备基础。</p></div>
+  </header>
+  <main class="overview-layout">
+    <section class="map-shell" aria-label="全部课程的先修关系总图">
+      <div class="map-heading"><div><p class="overline">ONE PROGRAMME, ONE MAP</p><h2>从全局，看见每一条学习路径</h2></div><div class="map-counts"><strong id="course-count">94</strong><span>门课程</span><i></i><strong id="related-count">30</strong><span>门有准备关系</span></div></div>
+      <div class="map-tools">
+        <form id="search-form" role="search"><label class="sr-only" for="overview-search">搜索课程或知识基础</label><span class="search-icon" aria-hidden="true">⌕</span><input id="overview-search" type="search" placeholder="搜索课程或知识，如 702、Linux" autocomplete="off"><button type="submit">定位</button></form>
+        <div class="search-navigation"><button id="search-prev" type="button" aria-label="上一个搜索结果" disabled>↑</button><button id="search-next" type="button" aria-label="下一个搜索结果" disabled>↓</button></div>
+        <label class="sr-only" for="group-focus">聚焦课程组</label><select id="group-focus"><option value="all">全图 · 三个课程组</option><option value="group1">第一组选修课 · 57 门</option><option value="group2">第二组选修课 · 36 门</option><option value="internship">实习 · 1 门</option></select>
+        <div class="branch-tools"><button id="expand-all" type="button">全部展开</button><button id="collapse-all" type="button">收起准备分支</button></div>
+      </div>
+      <p id="search-status" class="search-status" role="status">全部课程始终保留在图中。点击课程旁的 ＋，展开准备关系。</p>
+      <div class="legend" aria-label="关系图例"><span><i class="legend-line grouping"></i>课程归组线 ≠ 先修关系</span><span><i class="legend-line recommended"></i>建议先学（非强制）</span><span><i class="legend-line required"></i>课程要求（知识/能力）</span><span><i class="legend-line uncertain"></i>待确认</span><span><i class="legend-square"></i>知识基础</span></div>
+      <div class="canvas-wrap">
+        <div id="overview-viewport" role="region" aria-label="全课程关系树画布。拖动平移，Control加滚轮缩放，方向键平移，Home适应全图。" tabindex="0">
+          <div id="overview-world"><svg id="overview-edges" aria-hidden="true"></svg><div id="overview-nodes"></div></div>
+          <p id="map-load-error" class="map-load-error" hidden>课程资料暂未加载，请刷新页面后重试。</p>
+        </div>
+        <div class="canvas-caption"><span class="live-dot"></span><span id="view-caption">全图鸟瞰</span><span class="caption-divider">/</span><span id="visible-count">94 门目标课程</span></div>
+        <div class="zoom-tools" aria-label="画布缩放"><button id="zoom-out" type="button" aria-label="缩小">−</button><output id="zoom-value" aria-live="off">100%</output><button id="zoom-in" type="button" aria-label="放大">＋</button><button id="zoom-reset" type="button">100%</button><button id="fit-all" type="button">适应全图</button></div>
+        <div class="canvas-hint">拖动画布平移 · Ctrl + 滚轮缩放 · 普通滚动浏览页面</div>
+      </div>
+      <aside id="node-detail" class="node-detail" aria-label="节点说明" hidden><div class="detail-heading"><div><p id="detail-kicker" class="overline"></p><h3 id="detail-title"></h3></div><button id="detail-close" type="button" aria-label="关闭节点说明">×</button></div><div id="detail-body"></div><div class="detail-links"><a id="detail-course-link">课程详细介绍 →</a><a id="detail-tree-link">单课先修树 →</a><a id="detail-source-link" target="_blank" rel="noopener noreferrer">官方课程说明 ↗</a></div></aside>
+      <div class="map-footer"><p><strong>AND 同时具备</strong> · <strong>OR 任选其一</strong> · <strong>累计学分</strong>保留各自组合含义。未公布先修要求，不代表没有要求。</p><p>只继续展开已核验的项目内课程；项目外课程为准备参考，不计入本项目选课学分。此图不会更改选课勾选。<span class="source-date">资料核对：<span id="updated-at"></span></span><a class="standalone-link" href="prerequisite-overview.html" target="_blank" rel="noopener">独立窗口打开总图 ↗</a></p></div>
+    </section>
+  </main>
+  <noscript><p class="no-script">请启用 JavaScript，以查看包含全部课程的关系大树。</p></noscript>
+  <script src="course-data.js"></script>
+  <script src="prerequisite-data.js"></script>
+  <script src="prerequisite-overview.js"></script>
+</body>
+</html>

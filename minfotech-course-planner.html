@@ -24,6 +24,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
 
     html { scroll-behavior: smooth; }
 
@@ -112,6 +113,17 @@
     }
 
     .app { padding: 32px 0 64px; }
+    .module-tabs { display: flex; gap: 8px; padding: 6px; margin: 0 0 26px; border: 1px solid var(--line); border-radius: 13px; background: #fffef9; }
+    .module-tab { border: 0; border-radius: 8px; padding: 13px 20px; background: transparent; color: #66716f; font-weight: 730; cursor: pointer; font-size: .94rem; }
+    .module-tab[aria-selected="true"] { color: #fff; background: var(--brand); }
+    .module-tab:hover:not([aria-selected="true"]) { color: var(--brand); background: #eaf3ed; }
+    .app.overview-active { width: min(1680px, calc(100% - 40px)); }
+    .overview-heading { display: flex; justify-content: space-between; gap: 18px; align-items: center; margin: 0 0 18px; }
+    .overview-heading h2 { margin: 0 0 8px; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--brand); }
+    .overview-heading p { margin: 0; color: var(--muted); font-size: .87rem; line-height: 1.7; }
+    .overview-standalone { flex: none; color: var(--brand-2); font-size: .85rem; font-weight: 700; text-underline-offset: 4px; }
+    #overview-frame { display: block; width: 100%; height: max(720px, 88dvh); border: 1px solid var(--line); border-radius: 14px; background: #f5f7f1; }
+    .overview-note { font-size: .78rem; color: var(--muted); line-height: 1.7; margin: 12px 0 0; }
 
     .prereq-module {
       display: flex; align-items: center; justify-content: space-between; gap: 22px;
@@ -123,6 +135,10 @@
     .prereq-module .prereq-kicker { color: var(--brand-2); font-size: .7rem; font-weight: 750; letter-spacing: .1em; }
     .prereq-open { flex: none; display: inline-block; padding: 12px 18px; border-radius: 9px; color: #fff; background: var(--brand-2); font-size: .87rem; font-weight: 700; text-decoration: none; }
     .prereq-open:hover { background: var(--brand); }
+    .prereq-actions { flex: none; display: flex; flex-direction: column; gap: 9px; align-items: center; }
+    .overview-open { color: #fff; background: var(--brand-2); border-radius: 9px; padding: 12px 18px; font-size: .87rem; font-weight: 700; text-decoration: none; }
+    .overview-open:hover { background: var(--brand); }
+    .prereq-actions .prereq-open { background: transparent; color: var(--brand-2); font-size: .78rem; padding: 3px 8px; text-decoration: underline; text-underline-offset: 3px; }
 
     .dashboard {
       display: grid;
@@ -538,6 +554,11 @@
       .hero-inner, .app { width: min(100% - 24px, 1180px); }
       .hero-inner { padding: 36px 0 34px; }
       .app { padding-top: 20px; }
+      .app.overview-active { width: calc(100% - 24px); }
+      .module-tabs { margin-bottom: 20px; gap: 4px; }
+      .module-tab { flex: 1; padding: 12px 7px; font-size: .81rem; }
+      .overview-heading { flex-direction: column; align-items: flex-start; gap: 10px; }
+      #overview-frame { height: max(760px, 92dvh); }
       .prereq-module { flex-direction: column; align-items: stretch; gap: 14px; padding: 18px; }
       .prereq-open { text-align: center; }
       .dashboard { gap: 8px; }
@@ -563,11 +584,24 @@
     <div class="hero-inner">
       <p class="eyebrow">University of Auckland · MInfoTech</p>
       <h1>180 分选课规划器</h1>
-      <p class="hero-copy">勾选想修的课程，实时核算各组与总学分。点击“中文详情”查看课程内容、先修要求、开课与考核信息，也可按组逐门浏览。你的选择只保存在当前浏览器中。</p>
+      <p class="hero-copy">两个独立模块：选课规划，实时核算学分；先修关系总览大树，在一张大图里浏览全部课程与准备基础。你的选择只保存在当前浏览器中。</p>
     </div>
   </header>
 
   <main class="app">
+    <nav class="module-tabs" role="tablist" aria-label="功能模块">
+      <button class="module-tab" id="planner-tab" type="button" role="tab" aria-selected="true" aria-controls="planner-panel" tabindex="0">选课规划</button>
+      <button class="module-tab" id="overview-tab" type="button" role="tab" aria-selected="false" aria-controls="overview-panel" tabindex="-1">先修关系总览大树</button>
+    </nav>
+    <section id="overview-panel" role="tabpanel" aria-labelledby="overview-tab" hidden>
+      <header class="overview-heading">
+        <div><h2>先修关系总览大树</h2><p>一棵树集中展示两组选修课与实习。缩放、拖动或搜索定位课程，点击分支展开准备要求。</p></div>
+        <a class="overview-standalone" href="prerequisite-overview.html" target="_blank" rel="noopener noreferrer">在独立大窗口中打开 ↗</a>
+      </header>
+      <iframe id="overview-frame" title="MInfoTech 全课程先修关系总览大树" data-src="prerequisite-overview.html?embed=1"></iframe>
+      <p class="overview-note">归组连线只表示课程分类；先修与准备连线会单独标注“建议先学（非强制）”“课程要求”或“待确认”。浏览大树不会改变已选课程或学分。</p>
+    </section>
+    <section id="planner-panel" role="tabpanel" aria-labelledby="planner-tab">
     <section class="dashboard" aria-label="学分完成情况">
       <article class="stat total" id="stat-total">
         <div class="stat-label"><span>总学分</span><span id="total-count">0 门已选</span></div>
@@ -598,10 +632,10 @@
     <section class="prereq-module" id="prerequisite-module" aria-labelledby="prereq-module-title">
       <div>
         <p class="prereq-kicker">学习准备 · 关系可视化</p>
-        <h2 id="prereq-module-title">先修关系树</h2>
-        <p>选一门目标课程，展开查看前置课程与知识基础。非强制关系统一标注“建议先学”；课程要求与待确认信息单独区分。查看树状图不会改变你的已选学分。</p>
+        <h2 id="prereq-module-title">先修关系总览大树</h2>
+        <p>打开独立的大树模块，在一张图里查看全部 94 门课程与准备关系。非强制关系统一标注“建议先学”。</p>
       </div>
-      <a class="prereq-open" href="prerequisite-tree.html">查看树状图 →</a>
+      <div class="prereq-actions"><a class="overview-open" href="#overview">进入总览大树 →</a><a class="prereq-open" href="prerequisite-tree.html">逐门查看先修说明</a></div>
     </section>
 
     <section class="toolbar" aria-label="课程筛选工具">
@@ -621,6 +655,7 @@
     <div id="sections"></div>
 
     <p class="footnote">依据奥克兰大学 <a href="https://study.auckland.ac.nz/ords/r/uoa/catalogue/plan?p7_code=INFT-T3MInfoTech" target="_blank" rel="noopener noreferrer">MInfoTech 180 分官方课程表</a>整理。本工具仅用于选课规划，不会向学校提交选课；中文详情为官网信息整理，实际开课、先修条件及审批请以学校当期规定为准。</p>
+    </section>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -922,6 +957,48 @@
     window.addEventListener('storage', event => {
       if (event.key === storageKey || event.key === null) { selected = loadSelection(); render(); }
     });
+    const moduleTabs = [document.getElementById('planner-tab'), document.getElementById('overview-tab')];
+    function showModule(module, updateAddress = false) {
+      const overview = module === 'overview';
+      document.getElementById('planner-panel').hidden = overview;
+      document.getElementById('overview-panel').hidden = !overview;
+      document.querySelector('main.app').classList.toggle('overview-active', overview);
+      moduleTabs.forEach((tab, index) => {
+        const active = overview ? index === 1 : index === 0;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+      });
+      if (overview) {
+        const frame = document.getElementById('overview-frame');
+        if (!frame.hasAttribute('src')) frame.src = frame.dataset.src;
+      }
+      if (updateAddress) {
+        const url = new URL(location.href);
+        url.hash = overview ? 'overview' : 'planner';
+        try { history.replaceState(null, '', url); } catch { location.hash = url.hash; }
+      }
+    }
+    moduleTabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => showModule(index === 1 ? 'overview' : 'planner', true));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') next = 1 - index;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = 1;
+        if (next === undefined) return;
+        event.preventDefault();
+        moduleTabs[next].focus();
+        showModule(next === 1 ? 'overview' : 'planner', true);
+      });
+    });
+    document.querySelector('.overview-open').addEventListener('click', event => {
+      event.preventDefault();
+      showModule('overview', true);
+      moduleTabs[1].focus();
+      moduleTabs[1].scrollIntoView({ block: 'start' });
+    });
+    window.addEventListener('hashchange', () => showModule(location.hash === '#overview' ? 'overview' : 'planner'));
+    showModule(location.hash === '#overview' ? 'overview' : 'planner');
     render();
   </script>
 </body>
